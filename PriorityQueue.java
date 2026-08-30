@@ -1,89 +1,78 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
-/**
- * Simple Priority Queue (Min-Heap) for integers.
- * Smallest number has highest priority.
- *
- * How it works: binary heap stored in ArrayList
- *   parent = (i-1)/2 , left = 2*i+1 , right = 2*i+2
- */
-public class PriorityQueue {
+ class PriorityQueue {
+    static int parent(int i) { return (i - 1) / 2; }
+    static int leftChild(int i) { return 2 * i + 1; }
+    static int rightChild(int i) { return 2 * i + 2; }
 
-    private ArrayList<Integer> heap = new ArrayList<>();
-
-    // Add element
-    public void push(int value) {
-        heap.add(value);
-        siftUp(heap.size() - 1);
-    }
-
-    // Remove and return smallest element
-    public int pop() {
-        if (isEmpty()) throw new RuntimeException("PriorityQueue is empty");
-        int top = heap.get(0);
-        int last = heap.remove(heap.size() - 1);
-        if (!heap.isEmpty()) {
-            heap.set(0, last);
-            siftDown(0);
-        }
-        return top;
-    }
-
-    // See smallest without removing
-    public int peek() {
-        if (isEmpty()) throw new RuntimeException("PriorityQueue is empty");
-        return heap.get(0);
-    }
-
-    public int size() {
-        return heap.size();
-    }
-
-    public boolean isEmpty() {
-        return heap.isEmpty();
-    }
-
-    public void clear() {
-        heap.clear();
-    }
-
-    // Move element up to correct position
-    private void siftUp(int i) {
-        while (i > 0) {
-            int parent = (i - 1) / 2;
-            if (heap.get(i) < heap.get(parent)) {
-                swap(i, parent);
-                i = parent;
-            } else break;
+    static void shiftUp(int i, ArrayList<Integer> arr) {
+        while (i > 0 && arr.get(parent(i)) < arr.get(i)) {
+            Collections.swap(arr, parent(i), i);
+            i = parent(i);
         }
     }
 
-    // Move element down to correct position
-    private void siftDown(int i) {
-        int n = heap.size();
-        while (true) {
-            int left = 2 * i + 1;
-            int right = 2 * i + 2;
-            int smallest = i;
+    static void shiftDown(int i, ArrayList<Integer> arr, int size) {
+        int maxIndex = i;
+        int l = leftChild(i);
+        if (l < size && arr.get(l) > arr.get(maxIndex)) maxIndex = l;
+        int r = rightChild(i);
+        if (r < size && arr.get(r) > arr.get(maxIndex)) maxIndex = r;
 
-            if (left < n && heap.get(left) < heap.get(smallest)) smallest = left;
-            if (right < n && heap.get(right) < heap.get(smallest)) smallest = right;
-
-            if (smallest != i) {
-                swap(i, smallest);
-                i = smallest;
-            } else break;
+        if (i != maxIndex) {
+            Collections.swap(arr, i, maxIndex);
+            shiftDown(maxIndex, arr, size);
         }
     }
 
-    private void swap(int i, int j) {
-        int tmp = heap.get(i);
-        heap.set(i, heap.get(j));
-        heap.set(j, tmp);
+    static void insert(int priority, ArrayList<Integer> arr) {
+        arr.add(priority);
+        shiftUp(arr.size() - 1, arr);
     }
 
-    @Override
-    public String toString() {
-        return heap.toString();
+    static int pop(ArrayList<Integer> arr) {
+        int size = arr.size();
+        if (size == 0) return -1;
+        int result = arr.get(0);
+        arr.set(0, arr.get(size - 1));
+        arr.remove(size - 1);
+        shiftDown(0, arr, arr.size());
+        return result;
+    }
+
+    static int getMax(ArrayList<Integer> arr) {
+        if (arr.isEmpty()) return -1;
+        return arr.get(0);
+    }
+
+    static void printHeap(ArrayList<Integer> arr) {
+        for (int x : arr) System.out.print(x + " ");
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        ArrayList<Integer> list = new ArrayList<>();
+
+
+        insert(45, list);
+        insert(20, list);
+        insert(14, list);
+        insert(12, list);
+        insert(31, list);
+        insert(7, list);
+        insert(11, list);
+        insert(13, list);
+        insert(7, list);
+
+        System.out.print("Após inserts: ");
+        printHeap(list);
+
+        System.out.println("Maior elemento: " + getMax(list));
+
+        pop(list);
+        System.out.print("Após pop: ");
+        printHeap(list);
+
     }
 }
